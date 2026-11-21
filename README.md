@@ -170,32 +170,52 @@ From the solution directory, execute:
 dotnet test
 ```
 
-## **Project Progress**
+## **Design Decisions**
 
-### **Sprint 1**
+This section explains the reasoning behind some of the architectural and implementation decisions made in DonationHub.
 
-- Solution and project structure setup.
-- Clean Architecture implementation.
-- Database configuration using Entity Framework Core.
-- User authentication and authorization.
-- JWT access and refresh tokens.
-- Role-based access control.
-- Categories management.
-- Admin staff management.
+### **1. Why Do Read Operations Bypass the Repository?**
 
-### **Sprint 2**
+DonationHub uses repositories and Unit of Work for write operations, while read operations query the `DbContext` directly.
 
-- Campaign domain implementation.
-- Result Pattern implementation.
-- Centralized error catalogue.
-- Application validation.
-- Campaign creation and management.
-- Domain business rules.
-- Unit testing setup.
-- Domain and application unit tests.
+This decision was made because:
 
-## **Author**
+- Read operations often require specific filtering, sorting, pagination, and DTO projections.
+- Using `AsNoTracking()` improves read performance because EF Core does not track entities that will not be modified.
+- Direct queries avoid unnecessary repository abstractions for queries that do not need entity modification.
+- It allows read operations to retrieve exactly the required data without loading entire entities.
 
-**Salma Hani**
+### **2. Why Use Result Pattern Instead of Exceptions?**
 
-- GitHub: [SalmaHani2](https://github.com/SalmaHani2)
+The Result Pattern is used to handle expected business and validation failures.
+
+This decision was made because:
+
+- Business failures are expected outcomes of application operations, not exceptional situations.
+- `Result` and `Result<T>` explicitly represent success or failure.
+- Centralized error codes make error handling consistent across the application.
+- Errors can be mapped to appropriate HTTP status codes.
+- Exceptions remain reserved for unexpected failures and exceptional situations.
+
+### **3. Why Use Clean Architecture?**
+
+Clean Architecture separates the application into independent layers with clear responsibilities.
+
+This provides:
+
+- Separation of concerns.
+- Better maintainability and testability.
+- Reduced coupling between business logic and infrastructure.
+- The ability to change infrastructure implementations without changing domain rules.
+
+### **4. Why Use TimeProvider?**
+
+`TimeProvider` is used instead of directly depending on the system clock.
+
+This makes time-dependent business rules easier to test because tests can provide a controlled time rather than relying on the actual current date and time.
+
+### **5. Why Use Value Objects?**
+
+Value Objects represent domain concepts such as `Money`.
+
+They encapsulate validation and business rules, prevent invalid values from entering the domain, and compare values based on their contents rather than object identity.
