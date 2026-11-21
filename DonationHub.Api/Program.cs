@@ -1,0 +1,46 @@
+using DonationHub.Api.ExceptionHandling;
+using DonationHub.Application.DependencyInjection;
+using DonationHub.Infrastructure;
+using DonationHub.Infrastructure.Seed;
+using Scalar.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Controllers
+builder.Services.AddControllers();
+
+// Infrastructure: Database, Identity, JWT, Services and Options
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices(builder.Configuration);
+
+// Built-in OpenAPI
+builder.Services.AddOpenApi();
+
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<AdminSeeder>();
+
+    await seeder.SeedAsync(app.Services);
+}
+// OpenAPI and Scalar
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+app.UseExceptionHandler();
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

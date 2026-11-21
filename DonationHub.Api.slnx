@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="DonationHub.Api/DonationHub.Api.csproj" />
+  <Project Path="DonationHub.Application.UnitTests/DonationHub.Application.UnitTests.csproj" Id="b6cd0ae6-f7f1-4761-99ab-36d5452d0f45" />
+  <Project Path="DonationHub.Application/DonationHub.Application.csproj" />
+  <Project Path="DonationHub.Domain.UnitTests/DonationHub.Domain.UnitTests.csproj" Id="23af0a8d-b546-4600-8a44-0813de6a954b" />
+  <Project Path="DonationHub.Domain/DonationHub.Domain.csproj" />
+  <Project Path="DonationHub.Infrastructure/DonationHub.Infrastructure.csproj" />
+</Solution>
